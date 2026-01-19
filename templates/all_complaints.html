@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}All Complaints - City Samadhan{% endblock %}
+
+{% block content %}
+<div class="all-complaints-container">
+    <div class="section-header">
+        <h1>All Complaints</h1>
+        <p>View and interact with complaints from all users</p>
+    </div>
+
+    <div class="filters-section">
+        <form method="GET" class="filter-form">
+            <div class="form-group">
+                <label for="state">
+                    <i class="fas fa-map"></i>
+                    State
+                </label>
+                <select id="state" name="state" onchange="updateCities()">
+                    <option value="">All States</option>
+                    {% for state in states %}
+                    <option value="{{ state }}" {% if state == selected_state %}selected{% endif %}>{{ state }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="city">
+                    <i class="fas fa-city"></i>
+                    City
+                </label>
+                <select id="city" name="city">
+                    <option value="">All Cities</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="department">
+                    <i class="fas fa-building"></i>
+                    Department
+                </label>
+                <select id="department" name="department">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if dept == selected_department %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="status">
+                    <i class="fas fa-info-circle"></i>
+                    Status
+                </label>
+                <select id="status" name="status">
+                    <option value="">All Status</option>
+                    <option value="Reported" {% if 'Reported' == selected_status %}selected{% endif %}>Reported</option>
+                    <option value="In Progress" {% if 'In Progress' == selected_status %}selected{% endif %}>In Progress</option>
+                    <option value="Resolved" {% if 'Resolved' == selected_status %}selected{% endif %}>Resolved</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sort">
+                    <i class="fas fa-sort"></i>
+                    Sort By
+                </label>
+                <select id="sort" name="sort">
+                    <option value="newest" {% if 'newest' == selected_sort %}selected{% endif %}>Newest First</option>
+                    <option value="oldest" {% if 'oldest' == selected_sort %}selected{% endif %}>Oldest First</option>
+                    <option value="most_upvoted" {% if 'most_upvoted' == selected_sort %}selected{% endif %}>Most Upvoted</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-filter"></i>
+                Apply Filters
+            </button>
+        </form>
+    </div>
+
+    {% if complaints %}
+    <div class="complaints-grid">
+        {% for complaint in complaints %}
+        <div class="complaint-card">
+            <div class="complaint-header">
+                <div class="complaint-meta">
+                    <span class="complaint-id">#{{ complaint.id }}</span>
+                    <span class="status-badge {{ complaint.status.lower() }}">
+                        {{ complaint.status }}
+                    </span>
+                    <span class="timestamp">
+                        <i class="fas fa-clock"></i> {{ complaint.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                    </span>
+                </div>
+                <div class="complaint-author">
+                    <i class="fas fa-user"></i>
+                    {{ complaint.author.name }}
+                </div>
+            </div>
+            <h3>{{ complaint.title }}</h3>
+            <p class="complaint-desc">{{ complaint.description[:150] }}...</p>
+            <div class="complaint-location">
+                <i class="fas fa-map-marker-alt"></i>
+                {{ complaint.location }}, {{ complaint.city }}, {{ complaint.state }}
+            </div>
+            <div class="complaint-meta">
+                <span>
+                    <i class="fas fa-building"></i>
+                    {{ complaint.department }}
+                </span>
+            </div>
+            <div class="complaint-actions">
+                <a href="{{ url_for('view_complaint', complaint_id=complaint.id) }}" class="btn btn-secondary">
+                    View Details
+                </a>
+                <div class="vote-buttons">
+                    <button onclick="vote({{ complaint.id }}, 'upvote')" class="btn btn-vote">
+                        <i class="fas fa-thumbs-up"></i> {{ complaint.upvotes }}
+                    </button>
+                    <button onclick="vote({{ complaint.id }}, 'downvote')" class="btn btn-vote">
+                        <i class="fas fa-thumbs-down"></i> {{ complaint.downvotes }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if page > 1 %}
+        <a href="{{ url_for('all_complaints', page=page-1, state=selected_state, city=selected_city, department=selected_department, status=selected_status, sort=selected_sort) }}" class="btn btn-secondary">
+            <i class="fas fa-chevron-left"></i> Previous
+        </a>
+        {% endif %}
+        
+        <span class="page-info">Page {{ page }} of {{ total_pages }}</span>
+        
+        {% if page < total_pages %}
+        <a href="{{ url_for('all_complaints', page=page+1, state=selected_state, city=selected_city, department=selected_department, status=selected_status, sort=selected_sort) }}" class="btn btn-secondary">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="no-complaints">
+        <i class="fas fa-clipboard-list"></i>
+        <p>No complaints found matching your filters.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function updateCities() {
+    const stateSelect = document.getElementById('state');
+    const citySelect = document.getElementById('city');
+    const cities = {{ cities|tojson|safe }};
+    
+    citySelect.innerHTML = '<option value="">All Cities</option>';
+    
+    if (stateSelect.value) {
+        const stateCities = cities[stateSelect.value] || [];
+        stateCities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
+    }
+}
+
+// Initialize cities dropdown if state is selected
+document.addEventListener('DOMContentLoaded', function() {
+    const stateSelect = document.getElementById('state');
+    if (stateSelect.value) {
+        updateCities();
+    }
+});
+</script>
+{% endblock %} 

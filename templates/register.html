@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Register - City Samadhan{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-user-plus"></i>
+            <h2>Create Account</h2>
+            <p>Join City Samadhan to make your city better</p>
+        </div>
+        <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+            <div class="form-group">
+                <label for="name">
+                    <i class="fas fa-user"></i>
+                    Full Name
+                </label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">
+                    <i class="fas fa-phone"></i>
+                    Phone Number
+                </label>
+                <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+            </div>
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">
+                    <i class="fas fa-lock"></i>
+                    Confirm Password
+                </label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <div class="form-group">
+                <label for="city">
+                    <i class="fas fa-city"></i>
+                    City
+                </label>
+                <select id="city" name="city" required>
+                    <option value="">Select your city</option>
+                    {% for city in cities %}
+                    <option value="{{ city.id }}">{{ city.name }}, {{ city.state }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-options">
+                <label class="terms">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="{{ url_for('terms') }}">Terms of Service</a> and <a href="{{ url_for('privacy') }}">Privacy Policy</a></span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Create Account
+            </button>
+        </form>
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

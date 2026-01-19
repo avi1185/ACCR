@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>City Samadhan - Verify OTP</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <h1>City Samadhan - Verify OTP</h1>
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <div class="flash">{{ messages[0] }}</div>
+    {% endif %} {% endwith %}
+    <form method="POST">
+      <label>Enter OTP:</label><input type="text" name="otp" required /><br />
+      <button type="submit">Verify</button>
+    </form>
+  </body>
+</html>

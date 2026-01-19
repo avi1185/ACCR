@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="notifications-container">
+    <h2>Your Notifications</h2>
+    
+    <div class="notification-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="status_update">Status Updates</button>
+        <button class="filter-btn" data-filter="vote_update">Vote Updates</button>
+        <button class="filter-btn" data-filter="thread_update">Thread Updates</button>
+        <button class="filter-btn" data-filter="nearby_complaint">Nearby Complaints</button>
+        <button class="filter-btn" data-filter="welcome">Welcome</button>
+    </div>
+
+    <div class="notifications-list">
+        {% if notifications %}
+            {% for notification in notifications %}
+                <div class="notification-card {{ 'unread' if not notification.read }} {{ notification.type }}" data-type="{{ notification.type }}">
+                    <div class="notification-icon">
+                        {% if notification.type == 'status_update' %}
+                            <i class="fas fa-sync-alt"></i>
+                        {% elif notification.type == 'vote_update' %}
+                            <i class="fas fa-vote-yea"></i>
+                        {% elif notification.type == 'thread_update' %}
+                            <i class="fas fa-comments"></i>
+                        {% elif notification.type == 'nearby_complaint' %}
+                            <i class="fas fa-map-marker-alt"></i>
+                        {% elif notification.type == 'welcome' %}
+                            <i class="fas fa-hand-wave"></i>
+                        {% else %}
+                            <i class="fas fa-bell"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="notification-content">
+                        <h3>{{ notification.title }}</h3>
+                        <p>{{ notification.message }}</p>
+                        <div class="notification-meta">
+                            <span class="timestamp" title="{{ notification.timestamp }}">
+                                {{ notification.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                            </span>
+                            {% if notification.complaint_id %}
+                                <a href="{{ url_for('view_complaint', complaint_id=notification.complaint_id) }}" class="view-complaint-btn">
+                                    View Complaint
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button class="mark-read-btn" onclick="markAsRead({{ notification.id }})" title="Mark as read">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-notifications">
+                <i class="fas fa-bell-slash"></i>
+                <p>No notifications yet!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter notifications
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const notifications = document.querySelectorAll('.notification-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active button
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Filter notifications
+            const filter = btn.dataset.filter;
+            notifications.forEach(notification => {
+                if (filter === 'all' || notification.dataset.type === filter) {
+                    notification.style.display = 'flex';
+                } else {
+                    notification.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+
+function markAsRead(notificationId) {
+    fetch(`/mark_notification_read/${notificationId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notification = document.querySelector(`.notification-card[data-id="${notificationId}"]`);
+                notification.classList.remove('unread');
+            }
+        });
+}
+
+// Calculate relative time for timestamps
+function updateTimestamps() {
+    const timestamps = document.querySelectorAll('.timestamp');
+    timestamps.forEach(timestamp => {
+        const date = new Date(timestamp.title);
+        const now = new Date();
+        const diff = Math.floor((now - date) / 1000);  // difference in seconds
+
+        let relativeTime;
+        if (diff < 60) {
+            relativeTime = 'just now';
+        } else if (diff < 3600) {
+            const minutes = Math.floor(diff / 60);
+            relativeTime = `${minutes}m ago`;
+        } else if (diff < 86400) {
+            const hours = Math.floor(diff / 3600);
+            relativeTime = `${hours}h ago`;
+        } else if (diff < 604800) {
+            const days = Math.floor(diff / 86400);
+            relativeTime = `${days}d ago`;
+        } else {
+            relativeTime = timestamp.textContent;  // keep original format
+        }
+
+        timestamp.textContent = relativeTime;
+    });
+}
+
+// Update timestamps every minute
+updateTimestamps();
+setInterval(updateTimestamps, 60000);
+</script>
+
+<style>
+.notifications-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.notification-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #f0f0f0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: #e0e0e0;
+}
+
+.filter-btn.active {
+    background: #007bff;
+    color: white;
+}
+
+.notifications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notification-card {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.notification-card.unread {
+    background: #f8f9fa;
+    border-left: 4px solid #007bff;
+}
+
+.notification-icon {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.notification-content p {
+    margin: 0;
+    color: #666;
+    line-height: 1.4;
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #888;
+}
+
+.view-complaint-btn {
+    padding: 5px 10px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.9em;
+    transition: background 0.3s ease;
+}
+
+.view-complaint-btn:hover {
+    background: #0056b3;
+}
+
+.mark-read-btn {
+    padding: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+.mark-read-btn:hover {
+    color: #007bff;
+}
+
+.no-notifications {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+.no-notifications i {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+/* Notification type-specific styles */
+.notification-card.status_update .notification-icon {
+    color: #28a745;
+}
+
+.notification-card.vote_update .notification-icon {
+    color: #ffc107;
+}
+
+.notification-card.thread_update .notification-icon {
+    color: #17a2b8;
+}
+
+.notification-card.nearby_complaint .notification-icon {
+    color: #dc3545;
+}
+
+.notification-card.welcome .notification-icon {
+    color: #6f42c1;
+}
+
+@media (max-width: 600px) {
+    .notification-filters {
+        justify-content: center;
+    }
+    
+    .notification-card {
+        flex-direction: column;
+    }
+    
+    .notification-icon {
+        margin-bottom: 10px;
+    }
+    
+    .notification-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,5 @@
+venv/
+pycache/
+.env
+database.db
+*.log
