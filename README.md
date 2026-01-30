@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # CitySamadhan - Civic Complaint Management System
 
 CitySamadhan is a comprehensive civic complaint management system that empowers citizens to report, track, and resolve urban issues. Built with Flask and Python, this platform bridges the gap between citizens and municipal authorities by providing an efficient channel for reporting city-related problems.
@@ -231,10 +230,6 @@ app.config.update(
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
-
-For support, email hakyakrudost@gmail.com or open an issue in the GitHub repository.
-
 ## Acknowledgments
 
 - Thanks to all contributors who have helped develop this project
@@ -319,4 +314,3 @@ __Tech Stack </>__
 -> Geolocation: Geopy
 
 -> File Handling: Werkzeug
->>>>>>> 9798a06cdcd79ddf59f3988906a1cad67b514602
