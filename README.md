@@ -1,6 +1,6 @@
-# CitySamadhan - Civic Complaint Management System
+# ACCR - Civic Complaint Management System
 
-CitySamadhan is a comprehensive civic complaint management system that empowers citizens to report, track, and resolve urban issues. Built with Flask and Python, this platform bridges the gap between citizens and municipal authorities by providing an efficient channel for reporting city-related problems.
+ACCR is a comprehensive civic complaint management system that empowers citizens to report, track, and resolve urban issues. Built with Flask and Python, this platform bridges the gap between citizens and municipal authorities by providing an efficient channel for reporting city-related problems.
 
 ## Table of Contents
 - [Features](#features)
@@ -57,7 +57,7 @@ CitySamadhan is a comprehensive civic complaint management system that empowers 
 ## Project Structure
 
 ```
-CitySamadhan/
+ACCR/
 ├── app.py                 # Main Flask application
 ├── models.py              # Database models
 ├── init_db.py             # Database initialization script
@@ -97,8 +97,8 @@ CitySamadhan/
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/CitySamadhan.git
-   cd CitySamadhan
+   git clone https://github.com/your-username/ACCR.git
+   cd ACCR
    ```
 
 2. **Create a virtual environment**:
@@ -217,31 +217,10 @@ app.config.update(
     MAIL_PASSWORD='your-app-password'
 )
 ```
+# ACCR - Complaint Management System for Citizen
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Thanks to all contributors who have helped develop this project
-- Inspired by the need for better civic engagement platforms
-- Built with the Flask microframework and SQLAlchemy ORM
-=======
-# CitySamadhan - Complaint Management System for Citizen
-
-CitySamadhan is a web-based Complaint Management System for Citizen built to bridge the gap between citizens and civic authorities. Empowering citizens to resolve civic issues efficiently and transparently.
-It enables users to report, track, and discuss civic issues in their cities while providing departments with tools to address complaints effectively. Developed during "Code - ए - Manipal", this project leverages modern web technologies to create a scalable, user-friendly solution for urban governance.
-
-
+ACCR is a web-based Complaint Management System for Citizen built to bridge the gap between citizens and civic authorities. Empowering citizens to resolve civic issues efficiently and transparently.
+It enables users to report, track, and discuss civic issues in their cities while providing departments with tools to address complaints effectively. 
 
 # Key Features ✨_
 
@@ -251,7 +230,6 @@ __User Management 👤__
 
 -> Profiles with city, state & notification prefs 🏙
 
-
 __Complaint Management 📢__
 
 -> Submit complaints: title, desc, pics, GPS & dept 📸
@@ -259,7 +237,6 @@ __Complaint Management 📢__
 -> Track status in real-time ⏳
 
 -> Thread discussions for collab 🗣
-
 
 __Department Integration 🏢__
 
@@ -276,13 +253,11 @@ __Interactive Features 🎉__
 
 -> Detect similar issues 🔍
 
-
 __Notification System 🔔__
 
 -> Real-time alerts: status, replies, updates ⚡
 
 -> Email + in-app notifications 📧
-
 
 __Geographic Features 🌍__
 
@@ -290,15 +265,11 @@ __Geographic Features 🌍__
 
 -> Location tracking + nearby complaint detection 📍
 
-
 __Security 🔒__
 
 -> Secure login & session mgmt 🛡
 
 -> Safe file uploads 📤
-
-
-
 
 
 __Tech Stack </>__
