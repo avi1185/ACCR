@@ -698,5 +698,5 @@ def get_cities(state):
         return jsonify(list(INDIAN_CITIES['states'][state]))
     return jsonify([])
 
-# if __name__ == '__main__':
-    # app.run(debug=True, port=5001)
+if __name__ == '__main__':
+    app.run(debug=True, port=5001)
