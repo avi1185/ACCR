@@ -5,3 +5,4 @@ geopy>=2.4.1
 SQLAlchemy==1.4.49
 Werkzeug>=3.0.1 
 gunicorn
+requests
