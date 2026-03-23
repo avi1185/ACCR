@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - City Samadhan{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+        <p>Manage complaints for {% if session['admin_department'] == 'Public Works Department' %}Roads Department{% else %}{{ session['admin_department'] }}{% endif %} - {{ session['admin_city'] }}</p>
+    </div>
+
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <i class="fas fa-file-alt"></i>
+            <div class="stat-info">
+                <h3>Total Complaints</h3>
+                <p>{{ complaints|length }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-clock"></i>
+            <div class="stat-info">
+                <h3>Reported</h3>
+                <p>{{ complaints|selectattr('status', 'equalto', 'Reported')|list|length }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-play-circle"></i>
+            <div class="stat-info">
+                <h3>Accepted</h3>
+                <p>{{ complaints|selectattr('status', 'equalto', 'Accepted')|list|length }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-cog"></i>
+            <div class="stat-info">
+                <h3>Work in Progress</h3>
+                <p>{{ complaints|selectattr('status', 'equalto', 'Work in Progress')|list|length }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-check-circle"></i>
+            <div class="stat-info">
+                <h3>Completed</h3>
+                <p>{{ complaints|selectattr('status', 'equalto', 'Completed')|list|length }}</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-times-circle"></i>
+            <div class="stat-info">
+                <h3>Rejected</h3>
+                <p>{{ complaints|selectattr('status', 'equalto', 'Rejected')|list|length }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-actions">
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-secondary">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </a>
+    </div>
+
+    <div class="complaints-section">
+        <div class="section-header">
+            <h2>Complaints for Your Department</h2>
+        </div>
+
+        {% if complaints %}
+        <div class="complaints-grid">
+            {% for complaint in complaints %}
+            <div class="complaint-card">
+                <div class="complaint-header">
+                    <span class="complaint-id">#{{ complaint.id }}</span>
+                    <span class="status-badge {{ complaint.status.lower().replace(' ', '-').replace('work-in-progress', 'work-in-progress').replace('work-in-progress', 'work-in-progress') }}">
+                        {{ complaint.status }}
+                    </span>
+                </div>
+                <h3>{{ complaint.title }}</h3>
+                <p class="complaint-desc">{{ complaint.description[:100] }}...</p>
+                <div class="complaint-meta">
+                    <span>
+                        <i class="fas fa-calendar"></i>
+                        {{ complaint.timestamp | format_datetime_ist }}
+                    </span>
+                    <span>
+                        <i class="fas fa-map-marker-alt"></i>
+                        {{ complaint.location }}, {{ complaint.city }}
+                    </span>
+                    <span>
+                        <i class="fas fa-clock"></i>
+                        {% if complaint.status_updated_at %}
+                            {{ complaint.status_updated_at | format_datetime_ist }}
+                        {% else %}
+                            {{ complaint.timestamp | format_datetime_ist }}
+                        {% endif %}
+                    </span>
+                    {% if complaint.phone_number %}
+                    <span>
+                        <i class="fas fa-phone"></i>
+                        {{ complaint.phone_number }}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="complaint-actions">
+                    <a href="{{ url_for('view_complaint', complaint_id=complaint.id) }}" class="btn btn-secondary">
+                        View Details
+                    </a>
+                    <button onclick="openStatusModal(this, '{{ complaint.id }}')" data-status="{{ complaint.status }}" class="btn btn-primary">
+                        Update Status
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-complaints">
+            <i class="fas fa-clipboard-list"></i>
+            <p>No complaints found for your department.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Complaint Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="statusForm" method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">New Status</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Reported">Reported</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="Work in Progress">Work in Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="response_text" class="form-label">Response Message (Optional)</label>
+                        <textarea class="form-control" id="response_text" name="response_text" rows="3" placeholder="Add a message to the citizen..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openStatusModal(button, complaintId) {
+    var currentStatus = button.getAttribute('data-status');
+    
+    document.getElementById('status').value = currentStatus;
+    document.getElementById('statusForm').action = '/update_complaint_status/' + complaintId;
+    document.getElementById('response_text').value = '';
+    new bootstrap.Modal(document.getElementById('statusModal')).show();
+}
+
+// Handle form submission
+document.getElementById('statusForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var formData = new FormData(this);
+    var actionUrl = this.action;
+    
+    fetch(actionUrl, {
+        method: 'POST',
+        body: formData
+    })
+    .then(function(response) {
+        if (response.redirected) {
+            // Close modal and redirect
+            bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+            window.location.reload();
+        } else {
+            return response.text();
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status.');
+    });
+});
+</script>
+{% endblock %}

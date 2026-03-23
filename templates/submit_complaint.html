@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Complaint - City Samadhan{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-file-alt me-2"></i>Submit a Complaint</h4>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('submit_complaint') }}" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Enter a brief title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" placeholder="Describe the issue in detail" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="Enter your location" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <select class="form-select" id="state" name="state" required onchange="updateCities()">
+                                <option value="">Select State</option>
+                                {% for state in states %}
+                                <option value="{{ state }}">{{ state }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <select class="form-select" id="city" name="city" required>
+                                <option value="">Select State First</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <select class="form-select" id="department" name="department" required>
+                                <option value="">Select Department</option>
+                                <option value="Electricity Board">Electricity Department</option>
+                                <option value="Public Works Department">Roads Department</option>
+                                <option value="Water Supply Authority">Water Department</option>
+                                <option value="Municipal Waste Management">Sanitation Department</option>
+                                <option value="Municipal Corporation">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="map_location" class="form-label">Map Location (Optional)</label>
+                            <textarea class="form-control" id="map_location" name="map_location" rows="2" placeholder="Enter detailed map location, landmarks, or coordinates"></textarea>
+                            <div class="form-text">Provide specific location details to help locate the issue</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">Phone Number (Optional)</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="Enter your phone number">
+                            <div class="form-text">For urgent follow-up (visible only to department officials)</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="photo" class="form-label">Upload Photo</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                            <div class="form-text">Upload a photo of the issue (optional)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Complaint
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateCities() {
+    const stateSelect = document.getElementById('state');
+    const citySelect = document.getElementById('city');
+    const selectedState = stateSelect.value;
+
+    // Clear existing options
+    citySelect.innerHTML = '<option value="">Select City</option>';
+
+    if (selectedState) {
+        // Make an AJAX request to get cities for the selected state
+        fetch(`/get_cities/${selectedState}`)
+            .then(response => response.json())
+            .then(cities => {
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            });
+    }
+}
+</script>
+{% endblock %} 
